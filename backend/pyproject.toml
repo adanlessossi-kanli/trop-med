@@ -1,0 +1,21 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "S", "B", "A", "SIM", "PLC", "RUF"]
+ignore = [
+    "S101",    # assert in tests is fine
+    "S105",    # hardcoded default config values are fine
+    "S106",    # hardcoded passwords in seed/tests are fine
+    "S110",    # try-except-pass is intentional for Redis fallback
+    "B008",    # function call in default arg (Depends() pattern)
+    "PLC0415", # imports inside functions needed for circular import avoidance
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "ANN", "D", "PLR2004", "PLC0415"]
+"app/scripts/*" = ["S106"]

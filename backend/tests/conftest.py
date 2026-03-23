@@ -1,9 +1,18 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
-from app.main import app
-from app.core.security import create_access_token
+import app.core.database as database
 from app.core.config import get_settings
+from app.core.security import create_access_token
+from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def _reset_db_client():
+    """Reset the cached Motor client before each test so it binds to the current event loop."""
+    database._client = None
+    yield
+    database._client = None
 
 
 @pytest.fixture

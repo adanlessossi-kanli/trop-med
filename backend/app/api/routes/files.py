@@ -1,8 +1,9 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
 
-from app.core.security import get_current_user, RoleRequired
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+
 from app.core.audit import log_audit
+from app.core.security import RoleRequired, get_current_user
 from app.services import file_service
 
 router = APIRouter(prefix="/files", tags=["files"])
@@ -18,9 +19,12 @@ async def upload(
 ):
     content = await file.read()
     try:
-        meta = await file_service.upload_file(content, file.filename or "file", file.content_type or "", patient_id, encounter_id, user["sub"])
+        meta = await file_service.upload_file(
+            content, file.filename or "file",
+            file.content_type or "", patient_id, encounter_id, user["sub"],
+        )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from None
     await log_audit(user["sub"], user["role"], "CREATE", "file", meta["_id"], request)
     return meta
 
@@ -39,7 +43,7 @@ async def download(file_id: str, user: Annotated[dict, Depends(get_current_user)
         url = await file_service.get_download_url(file_id)
         return {"download_url": url}
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from None
 
 
 @router.delete("/{file_id}")

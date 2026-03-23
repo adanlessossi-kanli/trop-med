@@ -1,5 +1,6 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.database import get_db
 from app.models.schemas import SurveillanceReport
 
@@ -21,7 +22,10 @@ async def get_dashboard(region: str = "", disease_code: str = "", date_from: str
 
     pipeline = [
         {"$match": query},
-        {"$group": {"_id": {"disease_code": "$disease_code", "region": "$region"}, "total_cases": {"$sum": "$case_count"}}},
+        {"$group": {
+            "_id": {"disease_code": "$disease_code", "region": "$region"},
+            "total_cases": {"$sum": "$case_count"},
+        }},
     ]
     results = await db()["surveillance"].aggregate(pipeline).to_list(500)
     return {"aggregations": results}
@@ -44,6 +48,6 @@ async def get_alerts() -> list:
 
 
 async def submit_report(data: SurveillanceReport) -> dict:
-    doc = {"_id": str(uuid.uuid4()), **data.model_dump(), "created_at": datetime.now(timezone.utc)}
+    doc = {"_id": str(uuid.uuid4()), **data.model_dump(), "created_at": datetime.now(UTC)}
     await db()["surveillance"].insert_one(doc)
     return doc

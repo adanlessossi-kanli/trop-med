@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.database import get_db
 from app.models.schemas import Consent
 
@@ -47,5 +48,5 @@ async def export_patient_data(patient_id: str) -> dict:
         "files_metadata": files,
         "conversations": conversations,
         "consents": consents,
-        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "exported_at": datetime.now(UTC).isoformat(),
     }

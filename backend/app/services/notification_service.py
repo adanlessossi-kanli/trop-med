@@ -1,5 +1,6 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.database import get_db
 
 db = get_db
@@ -12,7 +13,7 @@ async def create_notification(user_id: str, title: str, body: str) -> dict:
         "title": title,
         "body": body,
         "read": False,
-        "created_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
     }
     await db()["notifications"].insert_one(doc)
     return doc

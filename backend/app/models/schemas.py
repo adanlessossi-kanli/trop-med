@@ -1,11 +1,11 @@
-from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr
+from datetime import UTC, datetime
 from typing import Literal
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 def utcnow():
-    from datetime import timezone
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # ── Users ──

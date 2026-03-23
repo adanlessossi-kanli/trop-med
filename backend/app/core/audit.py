@@ -1,5 +1,7 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import Request
+
 from app.core.database import get_db
 
 
@@ -14,7 +16,7 @@ async def log_audit(
     phi_accessed: bool = False,
 ):
     entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "user_id": user_id,
         "role": role,
         "action": action,

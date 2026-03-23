@@ -1,14 +1,15 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.database import get_db
-from app.models.schemas import EncounterCreate, ObservationCreate, ConditionCreate, MedicationCreate
+from app.models.schemas import ConditionCreate, EncounterCreate, MedicationCreate, ObservationCreate
 
 db = get_db
 
 
 async def _insert(collection: str, data: dict) -> dict:
     data["_id"] = str(uuid.uuid4())
-    data["date"] = datetime.now(timezone.utc)
+    data["date"] = datetime.now(UTC)
     await db()[collection].insert_one(data)
     return data
 

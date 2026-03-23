@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { api } from "@/lib/api";
 
 interface User {
@@ -9,22 +9,23 @@ interface User {
   locale: string;
 }
 
-export function useAuth() {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+function parseToken(t: string | null): User | null {
+  if (!t) return null;
+  try {
+    const payload = JSON.parse(atob(t.split(".")[1]));
+    return { sub: payload.sub, role: payload.role, locale: payload.locale };
+  } catch {
+    return null;
+  }
+}
 
-  useEffect(() => {
-    const t = localStorage.getItem("token");
-    if (t) {
-      setToken(t);
-      try {
-        const payload = JSON.parse(atob(t.split(".")[1]));
-        setUser({ sub: payload.sub, role: payload.role, locale: payload.locale });
-      } catch {
-        setUser(null);
-      }
-    }
-  }, []);
+export function useAuth() {
+  const [token, setToken] = useState<string | null>(() =>
+    typeof window !== "undefined" ? localStorage.getItem("token") : null
+  );
+  const [user, setUser] = useState<User | null>(() =>
+    typeof window !== "undefined" ? parseToken(localStorage.getItem("token")) : null
+  );
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await api<{ access_token: string; refresh_token: string }>("/auth/login", {

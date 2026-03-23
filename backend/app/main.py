@@ -1,10 +1,11 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import ai, auth, chat, clinical, files, gdpr, notifications, patient_files, patients, surveillance
 from app.core.database import close_db, get_db
 from app.core.errors import AppError, app_error_handler, generic_error_handler
-from app.api.routes import auth, patients, clinical, ai, files, surveillance, notifications, chat, patient_files, gdpr
 from app.core.rate_limit import RateLimitMiddleware
 
 

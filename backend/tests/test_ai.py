@@ -1,11 +1,20 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from app.models.schemas import AIResponse
+
+DISCLAIMER = (
+    "⚠️ Faible confiance (40%). "
+    "Ceci est généré par l'IA et doit être vérifié par un clinicien."
+)
 
 
 @pytest.mark.asyncio
 async def test_ai_query(client, doctor_token):
-    mock_response = AIResponse(answer="Test answer", confidence=0.9, sources=["src1"], locale="fr")
+    mock_response = AIResponse(
+        answer="Test answer", confidence=0.9, sources=["src1"], locale="fr",
+    )
     with patch("app.services.ai_service.query", new_callable=AsyncMock, return_value=mock_response):
         resp = await client.post(
             "/api/v1/ai/query",
@@ -30,7 +39,10 @@ async def test_ai_differential_forbidden_for_patient(client, patient_token):
 
 @pytest.mark.asyncio
 async def test_ai_low_confidence_warning(client, doctor_token):
-    mock_response = AIResponse(answer="Uncertain", confidence=0.4, sources=[], disclaimer="⚠️ Faible confiance (40%). Ceci est généré par l'IA et doit être vérifié par un clinicien.", locale="fr")
+    mock_response = AIResponse(
+        answer="Uncertain", confidence=0.4, sources=[],
+        disclaimer=DISCLAIMER, locale="fr",
+    )
     with patch("app.services.ai_service.query", new_callable=AsyncMock, return_value=mock_response):
         resp = await client.post(
             "/api/v1/ai/query",

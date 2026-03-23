@@ -1,10 +1,11 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.security import RoleRequired
-from app.models.schemas import EncounterCreate, ObservationCreate, ConditionCreate, MedicationCreate
-from app.services import clinical_service
 from app.fhir.mappers import FHIR_MAPPERS
+from app.models.schemas import ConditionCreate, EncounterCreate, MedicationCreate, ObservationCreate
+from app.services import clinical_service
 
 router = APIRouter(prefix="/fhir", tags=["fhir"])
 
