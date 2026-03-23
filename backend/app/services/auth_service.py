@@ -27,8 +27,8 @@ async def register(data: UserCreate) -> UserOut:
     }
     await coll.insert_one(doc)
     return UserOut(
-        id=doc["_id"], email=doc["email"],
-        full_name=doc["full_name"], role=doc["role"], locale=doc["locale"],
+        id=str(doc["_id"]), email=str(doc["email"]),
+        full_name=str(doc["full_name"]), role=str(doc["role"]), locale=str(doc["locale"]),
     )
 
 

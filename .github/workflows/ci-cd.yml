@@ -12,6 +12,17 @@ env:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1}).ok'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,17 +39,21 @@ jobs:
           ruff check .
           mypy app/ --ignore-missing-imports
 
-      - name: Frontend lint
-        run: |
-          cd frontend
-          npm ci
-          npm run lint
-
       - name: Backend tests
         run: |
           cd backend
           pip install pytest pytest-asyncio
           pytest tests/ -v
+
+      - name: Frontend install
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Frontend lint
+        run: |
+          cd frontend
+          npm run lint
 
       - name: Frontend build
         run: |
