@@ -11,11 +11,11 @@ router = APIRouter(prefix="/files", tags=["files"])
 
 @router.post("/upload")
 async def upload(
+    request: Request,
     file: UploadFile = File(...),
     patient_id: str = Form(""),
     encounter_id: str = Form(""),
     user: dict = Depends(RoleRequired("admin", "doctor", "nurse", "patient")),
-    request: Request = None,
 ):
     content = await file.read()
     try:

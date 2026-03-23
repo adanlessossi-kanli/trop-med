@@ -22,7 +22,8 @@ ERROR_CODES = {
 }
 
 
-async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
+async def app_error_handler(_request: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, AppError)
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -36,7 +37,8 @@ async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     )
 
 
-async def generic_error_handler(_request: Request, exc: HTTPException) -> JSONResponse:
+async def generic_error_handler(_request: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, HTTPException)
     code = ERROR_CODES.get(exc.status_code, "INTERNAL_ERROR")
     return JSONResponse(
         status_code=exc.status_code,
