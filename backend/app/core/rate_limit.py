@@ -1,7 +1,8 @@
 import time
+from collections.abc import Callable
 
 import redis.asyncio as aioredis
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import get_settings
@@ -16,7 +17,7 @@ ROLE_LIMITS = {
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app):
+    def __init__(self, app: Callable) -> None:
         super().__init__(app)
         self._redis: aioredis.Redis | None = None
 
@@ -25,7 +26,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             self._redis = aioredis.from_url(get_settings().redis_url)
         return self._redis
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         # Skip rate limiting for health and auth endpoints
         if request.url.path in ("/health", "/api/v1/auth/login", "/api/v1/auth/register"):
             return await call_next(request)

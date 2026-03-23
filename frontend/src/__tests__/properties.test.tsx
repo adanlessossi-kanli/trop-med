@@ -608,7 +608,7 @@ describe('Property 13: Loading state is shown during in-flight API requests', ()
               apiFetch<{ items: typeof fakeItems }>('/patients', { token: 'test-token' })
                 .then((d) => { setData(d.items); setLoading(false); })
                 .catch(() => setLoading(false));
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+             
             }, []);
 
             return { loading, data };
@@ -673,7 +673,7 @@ describe('Property 14: Error message is shown on API failure', () => {
                   setError('common.networkError');
                 }
               }
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+             
             }, []);
 
             return { error, isNetworkError, fetchData };
@@ -722,7 +722,7 @@ describe('Property 14: Error message is shown on API failure', () => {
                   setError('common.networkError');
                 }
               }
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+             
             }, []);
 
             return { error, isNetworkError, fetchData };
