@@ -80,68 +80,45 @@ jobs:
     needs: [lint-and-test, security-scan]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      # develop → GitHub Container Registry (no AWS credentials needed)
+      - name: Log in to GHCR
+        if: github.ref == 'refs/heads/develop'
+        uses: docker/login-action@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: aws-actions/amazon-ecr-login@v2
-        id: ecr
-
-      - name: Build & push backend
+      - name: Build & push backend (GHCR)
+        if: github.ref == 'refs/heads/develop'
         run: |
-          docker build -t ${{ steps.ecr.outputs.registry }}/tropmed-backend:${{ github.sha }} backend/
-          docker push ${{ steps.ecr.outputs.registry }}/tropmed-backend:${{ github.sha }}
+          IMAGE=ghcr.io/${{ github.repository }}/tropmed-backend
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest backend/
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
 
-  deploy-dev:
-    needs: build-and-push
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    environment: dev
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+      # main → AWS ECR (commented out until ECR is configured)
+      # - uses: aws-actions/configure-aws-credentials@v4
+      #   if: github.ref == 'refs/heads/main'
+      #   with:
+      #     role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+      #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy to ECS dev
-        run: |
-          aws ecs update-service --cluster tropmed-dev --service backend --force-new-deployment
+      # - uses: aws-actions/amazon-ecr-login@v2
+      #   if: github.ref == 'refs/heads/main'
+      #   id: ecr
 
-  deploy-staging:
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: staging
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy to ECS staging
-        run: |
-          aws ecs update-service --cluster tropmed-staging --service backend --force-new-deployment
-
-  deploy-prod:
-    needs: deploy-staging
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://tropmed.example.com
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy to ECS prod
-        run: |
-          aws ecs update-service --cluster tropmed-prod --service backend --force-new-deployment
+      # - name: Build & push backend (ECR)
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     IMAGE=${{ vars.ECR_REGISTRY }}/tropmed-backend
+      #     docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest backend/
+      #     docker push $IMAGE:${{ github.sha }}
+      #     docker push $IMAGE:latest
