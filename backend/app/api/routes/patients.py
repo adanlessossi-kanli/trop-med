@@ -1,8 +1,9 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from app.core.security import get_current_user, RoleRequired
 from app.core.audit import log_audit
+from app.core.security import RoleRequired, get_current_user
 from app.models.schemas import PatientCreate
 from app.services import patient_service
 
@@ -48,7 +49,11 @@ async def update_patient(patient_id: str, data: dict, user: Annotated[dict, Depe
 
 
 @router.delete("/{patient_id}")
-async def delete_patient(patient_id: str, user: Annotated[dict, Depends(RoleRequired("admin", "doctor"))], request: Request):
+async def delete_patient(
+    patient_id: str,
+    user: Annotated[dict, Depends(RoleRequired("admin", "doctor"))],
+    request: Request,
+):
     await patient_service.delete_patient(patient_id)
     await log_audit(user["sub"], user["role"], "DELETE", "patient", patient_id, request, phi_accessed=True)
     return {"deleted": True}

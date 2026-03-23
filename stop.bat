@@ -10,7 +10,7 @@ echo ═════════════════════════
 cd /d "%COMPOSE_DIR%"
 
 if "%1"=="--clean" (
-    echo Stopping and removing volumes...
+    echo Stopping and removing volumes (MongoDB data, Redis, LocalStack)...
     docker compose down -v
 ) else (
     docker compose down
@@ -19,6 +19,6 @@ if "%1"=="--clean" (
 echo.
 echo All services stopped.
 echo.
-echo   Tip: use 'stop.bat --clean' to also remove database volumes.
+echo   Tip: use 'stop.bat --clean' to also remove database volumes (MongoDB data will be lost).
 
 endlocal

@@ -1,8 +1,8 @@
-from fhir.resources.patient import Patient
-from fhir.resources.encounter import Encounter
-from fhir.resources.observation import Observation
 from fhir.resources.condition import Condition
+from fhir.resources.encounter import Encounter
 from fhir.resources.medicationrequest import MedicationRequest
+from fhir.resources.observation import Observation
+from fhir.resources.patient import Patient
 
 
 def to_fhir_patient(doc: dict) -> dict:
@@ -40,7 +40,10 @@ def to_fhir_condition(doc: dict) -> dict:
     return Condition(
         id=doc["_id"],
         clinicalStatus={"coding": [{"code": doc.get("clinical_status", "active")}]},
-        code={"coding": [{"system": "http://hl7.org/fhir/sid/icd-10", "code": doc["code"], "display": doc.get("display", "")}]},
+        code={"coding": [{
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": doc["code"], "display": doc.get("display", ""),
+        }]},
         subject={"reference": f"Patient/{doc['patient_id']}"},
     ).model_dump(exclude_none=True)
 

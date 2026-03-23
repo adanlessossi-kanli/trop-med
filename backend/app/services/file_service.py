@@ -1,6 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 import boto3
+
 from app.core.config import get_settings
 from app.core.database import get_db
 
@@ -18,7 +20,10 @@ def _s3_client():
     return boto3.client("s3", **kwargs)
 
 
-async def upload_file(file_bytes: bytes, filename: str, content_type: str, patient_id: str, encounter_id: str, user_id: str) -> dict:
+async def upload_file(
+    file_bytes: bytes, filename: str, content_type: str,
+    patient_id: str, encounter_id: str, user_id: str,
+) -> dict:
     if content_type not in ALLOWED_TYPES:
         raise ValueError(f"Unsupported file type: {content_type}")
     if len(file_bytes) > MAX_SIZE:
@@ -37,7 +42,7 @@ async def upload_file(file_bytes: bytes, filename: str, content_type: str, patie
         "size_bytes": len(file_bytes),
         "s3_key": s3_key,
         "uploaded_by": user_id,
-        "created_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
         "deleted": False,
     }
     await db()["files"].insert_one(doc)

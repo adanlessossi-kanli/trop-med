@@ -1,8 +1,10 @@
 import uuid
+
 import pyotp
-from app.core.database import get_db
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
+
 from app.core.config import Settings
+from app.core.database import get_db
+from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
 from app.models.schemas import UserCreate, UserOut
 
 db = get_db
@@ -24,7 +26,10 @@ async def register(data: UserCreate) -> UserOut:
         "is_active": True,
     }
     await coll.insert_one(doc)
-    return UserOut(id=doc["_id"], email=doc["email"], full_name=doc["full_name"], role=doc["role"], locale=doc["locale"])
+    return UserOut(
+        id=doc["_id"], email=doc["email"],
+        full_name=doc["full_name"], role=doc["role"], locale=doc["locale"],
+    )
 
 
 async def login(email: str, password: str, settings: Settings) -> dict:

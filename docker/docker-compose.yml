@@ -15,10 +15,14 @@ services:
       - JWT_SECRET=dev-secret-change-in-prod
       - APP_LOCALE=fr
     depends_on:
-      - mongodb
-      - redis
-      - localstack
-      - ai-mock
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      localstack:
+        condition: service_started
+      ai-mock:
+        condition: service_started
     volumes:
       - ../backend:/app
 
@@ -41,6 +45,11 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ping:1}).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   redis:
     image: redis:7-alpine

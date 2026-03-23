@@ -1,10 +1,11 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.core.audit import log_audit
 from app.core.config import Settings, get_settings
 from app.core.security import get_current_user
-from app.core.audit import log_audit
 from app.models.schemas import UserCreate, UserOut
 from app.services import auth_service
 
@@ -29,7 +30,7 @@ async def register(data: UserCreate):
     try:
         return await auth_service.register(data)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from None
 
 
 @router.post("/login")
@@ -38,7 +39,7 @@ async def login(data: LoginRequest, settings: Annotated[Settings, Depends(get_se
         tokens = await auth_service.login(data.email, data.password, settings)
         return tokens
     except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e)) from None
 
 
 @router.post("/refresh")
@@ -46,7 +47,7 @@ async def refresh(data: RefreshRequest, settings: Annotated[Settings, Depends(ge
     try:
         return await auth_service.refresh(data.refresh_token, settings)
     except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e)) from None
 
 
 @router.post("/logout")

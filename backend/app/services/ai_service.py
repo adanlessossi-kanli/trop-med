@@ -1,7 +1,14 @@
 import httpx
-from app.core.config import get_settings
-from app.models.schemas import AIQueryRequest, AIDifferentialRequest, AILiteratureRequest, AITranslateRequest, AIResponse
+
 from app.ai.prompts import build_prompt
+from app.core.config import get_settings
+from app.models.schemas import (
+    AIDifferentialRequest,
+    AILiteratureRequest,
+    AIQueryRequest,
+    AIResponse,
+    AITranslateRequest,
+)
 
 DISCLAIMER_FR = "Ceci est généré par l'IA et doit être vérifié par un clinicien."
 DISCLAIMER_EN = "This is AI-generated and must be verified by a clinician."
@@ -37,7 +44,10 @@ async def query(data: AIQueryRequest) -> AIResponse:
 
 
 async def differential(data: AIDifferentialRequest) -> AIResponse:
-    p = build_prompt("differential", symptoms=", ".join(data.symptoms), vitals=data.vitals, demographics=data.demographics, history=data.history)
+    p = build_prompt(
+        "differential", symptoms=", ".join(data.symptoms),
+        vitals=data.vitals, demographics=data.demographics, history=data.history,
+    )
     raw = await _call_inference({**p, "max_tokens": 2048})
     return _build_response(raw, data.locale)
 

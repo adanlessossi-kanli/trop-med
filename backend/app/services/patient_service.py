@@ -1,5 +1,6 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from app.core.database import get_db
 from app.models.schemas import PatientCreate
 
@@ -13,8 +14,8 @@ async def create_patient(data: PatientCreate) -> dict:
         **data.model_dump(),
         "name_text": f"{data.given_name} {data.family_name}",
         "status": "active",
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
+        "updated_at": datetime.now(UTC),
     }
     await db()["patients"].insert_one(doc)
     return doc
@@ -37,7 +38,7 @@ async def list_patients(q: str = "", page: int = 1, limit: int = 20, status: str
 
 
 async def update_patient(patient_id: str, data: dict) -> dict | None:
-    data["updated_at"] = datetime.now(timezone.utc)
+    data["updated_at"] = datetime.now(UTC)
     result = await db()["patients"].find_one_and_update(
         {"_id": patient_id}, {"$set": data}, return_document=True
     )

@@ -1,14 +1,14 @@
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
 from app.core.config import get_settings
-from app.core.security import decode_token
 from app.core.database import get_db
-from app.services import ai_service
+from app.core.security import decode_token
 from app.models.schemas import AIQueryRequest
+from app.services import ai_service
 
 router = APIRouter()
 
@@ -40,8 +40,8 @@ async def chat_ws(ws: WebSocket, token: str = Query(...)):
             # Save user message
             await db["conversations"].update_one(
                 {"_id": conversation_id},
-                {"$push": {"messages": {"role": "user", "content": content, "timestamp": datetime.now(timezone.utc)}},
-                 "$setOnInsert": {"user_id": user["sub"], "created_at": datetime.now(timezone.utc)}},
+                {"$push": {"messages": {"role": "user", "content": content, "timestamp": datetime.now(UTC)}},
+                 "$setOnInsert": {"user_id": user["sub"], "created_at": datetime.now(UTC)}},
                 upsert=True,
             )
 
@@ -55,7 +55,11 @@ async def chat_ws(ws: WebSocket, token: str = Query(...)):
             # Save assistant message
             await db["conversations"].update_one(
                 {"_id": conversation_id},
-                {"$push": {"messages": {"role": "assistant", "content": result.answer, "confidence": result.confidence, "timestamp": datetime.now(timezone.utc)}}},
+                {"$push": {"messages": {
+                    "role": "assistant", "content": result.answer,
+                    "confidence": result.confidence,
+                    "timestamp": datetime.now(UTC),
+                }}},
             )
 
             await ws.send_text(json.dumps({

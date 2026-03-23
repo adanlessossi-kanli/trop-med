@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -23,7 +23,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def create_token(data: dict, settings: Settings, expires_delta: timedelta) -> str:
-    payload = {**data, "exp": datetime.now(timezone.utc) + expires_delta}
+    payload = {**data, "exp": datetime.now(UTC) + expires_delta}
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
@@ -46,8 +46,10 @@ def create_refresh_token(user_id: str, settings: Settings) -> str:
 def decode_token(token: str, settings: Settings) -> dict:
     try:
         return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except JWTError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token",
+        ) from exc
 
 
 async def get_current_user(
