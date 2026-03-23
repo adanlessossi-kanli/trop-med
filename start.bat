@@ -8,7 +8,7 @@ echo   Trop-Med — Starting all services
 echo ═══════════════════════════════════════
 
 cd /d "%COMPOSE_DIR%"
-docker compose up -d --build
+docker compose --env-file .env up -d --build
 
 echo.
 echo Waiting for MongoDB to be ready...

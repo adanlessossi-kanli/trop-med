@@ -13,14 +13,25 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "welcome": "Bienvenue",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "networkError": "Erreur réseau. Vérifiez votre connexion.",
+    "retry": "Réessayer"
   },
   "auth": {
     "email": "Adresse email",
     "password": "Mot de passe",
     "signIn": "Se connecter",
     "register": "Créer un compte",
-    "forgotPassword": "Mot de passe oublié ?"
+    "forgotPassword": "Mot de passe oublié ?",
+    "invalidCredentials": "Email ou mot de passe invalide.",
+    "totpCode": "Code d'authentification",
+    "totpPlaceholder": "Code à 6 chiffres",
+    "verifyCode": "Vérifier",
+    "invalidMfaCode": "Code d'authentification invalide. Veuillez réessayer.",
+    "mfaTitle": "Authentification à deux facteurs",
+    "mfaDescription": "Entrez le code à 6 chiffres de votre application d'authentification."
   },
   "ai": {
     "disclaimer": "Ceci est généré par l'IA et doit être vérifié par un clinicien.",

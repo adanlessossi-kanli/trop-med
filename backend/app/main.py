@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -7,23 +8,25 @@ from app.api.routes import ai, auth, chat, clinical, files, gdpr, notifications,
 from app.core.database import close_db, get_db
 from app.core.errors import AppError, app_error_handler, generic_error_handler
 from app.core.rate_limit import RateLimitMiddleware
+from migrations.runner import run_migrations
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: ensure indexes
     db = get_db()
-    await db["users"].create_index("email", unique=True)
-    await db["patients"].create_index("fhir_id")
-    await db["patients"].create_index("name_text")
-    await db["encounters"].create_index("patient_id")
-    await db["observations"].create_index([("patient_id", 1), ("code", 1)])
-    await db["conditions"].create_index("patient_id")
-    await db["medications"].create_index("patient_id")
-    await db["conversations"].create_index("user_id")
-    await db["files"].create_index("patient_id")
-    await db["audit_logs"].create_index([("user_id", 1), ("timestamp", -1)])
-    await db["surveillance"].create_index([("region", 1), ("disease_code", 1), ("date", 1)])
+
+    # Check if this is a first-ever run (no migrations applied yet)
+    first_run = await db["_migrations"].count_documents({}) == 0
+
+    await run_migrations(db)
+
+    if first_run:
+        import subprocess, sys  # noqa: E401
+        logger.info("First run detected — seeding database …")
+        subprocess.run([sys.executable, "-m", "app.scripts.seed"], check=False)  # noqa: S603
+
     yield
     await close_db()
 
