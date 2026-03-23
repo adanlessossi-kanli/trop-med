@@ -1,6 +1,5 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
-from unittest.mock import AsyncMock, patch
+from httpx import ASGITransport
 
 from app.main import app
 from app.core.security import create_access_token
