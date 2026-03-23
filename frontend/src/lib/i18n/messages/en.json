@@ -13,14 +13,25 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "welcome": "Welcome",
+    "error": "Something went wrong. Please try again.",
+    "networkError": "Network error. Check your connection.",
+    "retry": "Retry"
   },
   "auth": {
     "email": "Email address",
     "password": "Password",
     "signIn": "Sign in",
     "register": "Create account",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    "invalidCredentials": "Invalid email or password.",
+    "totpCode": "Authentication code",
+    "totpPlaceholder": "6-digit code",
+    "verifyCode": "Verify",
+    "invalidMfaCode": "Invalid authentication code. Please try again.",
+    "mfaTitle": "Two-factor authentication",
+    "mfaDescription": "Enter the 6-digit code from your authenticator app."
   },
   "ai": {
     "disclaimer": "This is AI-generated and must be verified by a clinician.",

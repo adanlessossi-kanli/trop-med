@@ -19,7 +19,15 @@ RESOURCE_MAP = {
 }
 
 
-@router.get("/{resource_type}")
+@router.get(
+    "/{resource_type}",
+    summary="List FHIR resources",
+    description=(
+        "Return a list of FHIR resources of the given type (Encounter, Observation, Condition, MedicationRequest). "
+        "Optionally filter by `patient_id`. Results are mapped to FHIR-compliant JSON where a mapper is available. "
+        "Requires clinician role."
+    ),
+)
 async def list_fhir(resource_type: str, user: Annotated[dict, Depends(clinician)], patient_id: str = ""):
     if resource_type not in RESOURCE_MAP:
         raise HTTPException(status_code=400, detail=f"Unsupported resource: {resource_type}")
@@ -29,7 +37,14 @@ async def list_fhir(resource_type: str, user: Annotated[dict, Depends(clinician)
     return [mapper(d) for d in docs] if mapper else docs
 
 
-@router.post("/{resource_type}")
+@router.post(
+    "/{resource_type}",
+    summary="Create a FHIR resource",
+    description=(
+        "Create a new FHIR resource of the given type (Encounter, Observation, Condition, MedicationRequest). "
+        "The request body is validated against the corresponding Pydantic schema. Requires clinician role."
+    ),
+)
 async def create_fhir(resource_type: str, data: dict, user: Annotated[dict, Depends(clinician)]):
     if resource_type not in RESOURCE_MAP:
         raise HTTPException(status_code=400, detail=f"Unsupported resource: {resource_type}")
@@ -39,7 +54,14 @@ async def create_fhir(resource_type: str, data: dict, user: Annotated[dict, Depe
     return await create_fn(validated)
 
 
-@router.get("/{resource_type}/{resource_id}")
+@router.get(
+    "/{resource_type}/{resource_id}",
+    summary="Get a FHIR resource by ID",
+    description=(
+        "Retrieve a single FHIR resource by its unique identifier. "
+        "Returns 404 if the resource does not exist. Requires clinician role."
+    ),
+)
 async def get_fhir(resource_type: str, resource_id: str, user: Annotated[dict, Depends(clinician)]):
     if resource_type not in RESOURCE_MAP:
         raise HTTPException(status_code=400, detail=f"Unsupported resource: {resource_type}")
@@ -50,7 +72,14 @@ async def get_fhir(resource_type: str, resource_id: str, user: Annotated[dict, D
     return mapper(result) if mapper else result
 
 
-@router.put("/{resource_type}/{resource_id}")
+@router.put(
+    "/{resource_type}/{resource_id}",
+    summary="Update a FHIR resource",
+    description=(
+        "Apply a partial update to an existing FHIR resource. "
+        "Returns 404 if the resource does not exist. Requires clinician role."
+    ),
+)
 async def update_fhir(resource_type: str, resource_id: str, data: dict, user: Annotated[dict, Depends(clinician)]):
     if resource_type not in RESOURCE_MAP:
         raise HTTPException(status_code=400, detail=f"Unsupported resource: {resource_type}")
