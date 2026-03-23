@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/patients", tags=["patients"])
 
 @router.get(
     "/{patient_id}/files",
-    response_model=List[FileMetadata],
+    response_model=list[FileMetadata],
     summary="List files attached to a patient",
     description=(
         "Return all file metadata records associated with the specified patient. "

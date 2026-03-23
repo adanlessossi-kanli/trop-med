@@ -23,7 +23,8 @@ async def lifespan(app: FastAPI):
     await run_migrations(db)
 
     if first_run:
-        import subprocess, sys  # noqa: E401
+        import subprocess
+        import sys
         logger.info("First run detected — seeding database …")
         subprocess.run([sys.executable, "-m", "app.scripts.seed"], check=False)  # noqa: S603
 

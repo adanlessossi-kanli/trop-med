@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -20,7 +20,7 @@ class ReadAllResponse(BaseModel):
 
 @router.get(
     "",
-    response_model=List[NotificationOut],
+    response_model=list[NotificationOut],
     summary="List notifications for the current user",
     description=(
         "Return all notifications addressed to the authenticated user, "
