@@ -1,0 +1,68 @@
+services:
+  backend:
+    build: ../backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/tropmed
+      - REDIS_URL=redis://redis:6379
+      - AI_INFERENCE_URL=http://ai-mock:8080
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_S3_BUCKET=tropmed-files-local
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - JWT_SECRET=dev-secret-change-in-prod
+      - APP_LOCALE=fr
+    depends_on:
+      - mongodb
+      - redis
+      - localstack
+      - ai-mock
+    volumes:
+      - ../backend:/app
+
+  frontend:
+    build: ../frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs,sns,secretsmanager
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./localstack-init.sh:/etc/localstack/init/ready.d/init.sh
+
+  ai-mock:
+    build: ./ai-mock
+    ports:
+      - "8080:8080"
+
+volumes:
+  mongo_data:
+  localstack_data:

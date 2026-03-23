@@ -1,0 +1,41 @@
+{
+  "common": {
+    "appName": "Trop-Med",
+    "login": "Login",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "patients": "Patients",
+    "chat": "Chat",
+    "surveillance": "Surveillance",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "search": "Search",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "loading": "Loading..."
+  },
+  "auth": {
+    "email": "Email address",
+    "password": "Password",
+    "signIn": "Sign in",
+    "register": "Create account",
+    "forgotPassword": "Forgot password?"
+  },
+  "ai": {
+    "disclaimer": "This is AI-generated and must be verified by a clinician.",
+    "lowConfidence": "⚠️ Low confidence — clinical verification required.",
+    "askQuestion": "Ask your medical question...",
+    "thinking": "Thinking...",
+    "sources": "Sources"
+  },
+  "patient": {
+    "newPatient": "New patient",
+    "givenName": "Given name",
+    "familyName": "Family name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "phone": "Phone",
+    "timeline": "Clinical timeline"
+  }
+}
