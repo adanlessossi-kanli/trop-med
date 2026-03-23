@@ -6,11 +6,10 @@ Property 15: Migration runner writes correct records to _migrations
 Property 16: Migration runner is idempotent
 """
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime
 from types import ModuleType
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -59,7 +58,14 @@ def _make_db(applied_versions: set[int]) -> MagicMock:
 @settings(max_examples=100)
 @given(
     version=st.integers(min_value=1, max_value=1000),
-    name=st.text(min_size=1, max_size=50, alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd"), whitelist_characters="_")),
+    name=st.text(
+        min_size=1,
+        max_size=50,
+        alphabet=st.characters(
+            whitelist_categories=("Lu", "Ll", "Nd"),
+            whitelist_characters="_",
+        ),
+    ),
 )
 def test_property_15_migration_writes_correct_record(version: int, name: str):
     """
@@ -69,9 +75,11 @@ def test_property_15_migration_writes_correct_record(version: int, name: str):
     mod = _make_migration(version, name)
     db = _make_db(applied_versions=set())
 
-    with patch("migrations.runner.pkgutil.iter_modules", return_value=[("", f"{version:04d}_{name}", False)]):
-        with patch("migrations.runner.importlib.import_module", return_value=mod):
-            asyncio.run(run_migrations(db))
+    with (
+        patch("migrations.runner.pkgutil.iter_modules", return_value=[("", f"{version:04d}_{name}", False)]),
+        patch("migrations.runner.importlib.import_module", return_value=mod),
+    ):
+        asyncio.run(run_migrations(db))
 
     col = db["_migrations"]
     col.insert_one.assert_called_once()
@@ -102,11 +110,13 @@ def test_property_16_migration_runner_is_idempotent(all_versions: set[int], alre
     mods = [_make_migration(v, f"migration_{v:04d}") for v in all_versions]
     db = _make_db(applied_versions=already_applied)
 
-    module_map = {f"{v:04d}_migration_{v:04d}": next(m for m in mods if m.VERSION == v) for v in all_versions}
+    module_map = {f"{v:04d}_migration_{v:04d}": next(m for m in mods if v == m.VERSION) for v in all_versions}
 
-    with patch("migrations.runner.pkgutil.iter_modules", return_value=[("", name, False) for name in module_map]):
-        with patch("migrations.runner.importlib.import_module", side_effect=lambda n: module_map[n.split(".")[-1]]):
-            asyncio.run(run_migrations(db))
+    with (
+        patch("migrations.runner.pkgutil.iter_modules", return_value=[("", name, False) for name in module_map]),
+        patch("migrations.runner.importlib.import_module", side_effect=lambda n: module_map[n.split(".")[-1]]),
+    ):
+        asyncio.run(run_migrations(db))
 
     col = db["_migrations"]
     # insert_one should be called exactly once per pending migration

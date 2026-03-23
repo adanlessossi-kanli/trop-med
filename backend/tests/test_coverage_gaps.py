@@ -8,6 +8,7 @@ import pytest
 
 from app.core.config import get_settings
 from app.core.security import create_access_token
+from app.models.schemas import AIResponse
 
 _settings = get_settings()
 
@@ -483,8 +484,6 @@ async def test_surveillance_submit_report(client):
 # AI - literature and translate endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from app.models.schemas import AIResponse
-
 _AI_SVC = "app.api.routes.ai.ai_service"
 _AI_AUDIT = "app.api.routes.ai.log_audit"
 
@@ -667,8 +666,8 @@ async def test_surveillance_service_get_alerts():
 
 @pytest.mark.asyncio
 async def test_surveillance_service_submit_report():
-    from app.services import surveillance_service
     from app.models.schemas import SurveillanceReport
+    from app.services import surveillance_service
     mock_col = MagicMock()
     mock_col.insert_one = AsyncMock()
     mock_db = MagicMock()
@@ -684,8 +683,8 @@ async def test_surveillance_service_submit_report():
 
 @pytest.mark.asyncio
 async def test_clinical_service_create_encounter():
-    from app.services import clinical_service
     from app.models.schemas import EncounterCreate
+    from app.services import clinical_service
     mock_col = MagicMock()
     mock_col.insert_one = AsyncMock()
     mock_db = MagicMock()
@@ -699,8 +698,8 @@ async def test_clinical_service_create_encounter():
 
 @pytest.mark.asyncio
 async def test_clinical_service_create_observation():
-    from app.services import clinical_service
     from app.models.schemas import ObservationCreate
+    from app.services import clinical_service
     mock_col = MagicMock()
     mock_col.insert_one = AsyncMock()
     mock_db = MagicMock()
@@ -713,8 +712,8 @@ async def test_clinical_service_create_observation():
 
 @pytest.mark.asyncio
 async def test_clinical_service_create_condition():
-    from app.services import clinical_service
     from app.models.schemas import ConditionCreate
+    from app.services import clinical_service
     mock_col = MagicMock()
     mock_col.insert_one = AsyncMock()
     mock_db = MagicMock()
@@ -727,8 +726,8 @@ async def test_clinical_service_create_condition():
 
 @pytest.mark.asyncio
 async def test_clinical_service_create_medication():
-    from app.services import clinical_service
     from app.models.schemas import MedicationCreate
+    from app.services import clinical_service
     mock_col = MagicMock()
     mock_col.insert_one = AsyncMock()
     mock_db = MagicMock()
@@ -795,8 +794,8 @@ async def test_consent_service_get_consents():
 
 @pytest.mark.asyncio
 async def test_consent_service_update_consent():
-    from app.services import consent_service
     from app.models.schemas import Consent
+    from app.services import consent_service
     mock_update_result = MagicMock()
     mock_update_result.matched_count = 1
     mock_col = MagicMock()
@@ -829,8 +828,8 @@ async def test_consent_service_export_patient_data():
 
 @pytest.mark.asyncio
 async def test_patient_service_create():
-    from app.services import patient_service
     from app.models.schemas import PatientCreate
+    from app.services import patient_service
     mock_col = MagicMock()
     mock_col.insert_one = AsyncMock()
     mock_db = MagicMock()
@@ -916,8 +915,8 @@ async def test_patient_service_get_timeline():
 
 @pytest.mark.asyncio
 async def test_auth_service_register():
-    from app.services import auth_service
     from app.models.schemas import UserCreate
+    from app.services import auth_service
     mock_col = MagicMock()
     mock_col.find_one = AsyncMock(return_value=None)
     mock_col.insert_one = AsyncMock()
@@ -931,22 +930,24 @@ async def test_auth_service_register():
 
 @pytest.mark.asyncio
 async def test_auth_service_register_duplicate():
-    from app.services import auth_service
     from app.models.schemas import UserCreate
+    from app.services import auth_service
     mock_col = MagicMock()
     mock_col.find_one = AsyncMock(return_value={"email": "existing@example.com"})
     mock_db = MagicMock()
     mock_db.__getitem__ = MagicMock(return_value=mock_col)
     data = UserCreate(email="existing@example.com", password="secret123", full_name="Existing")
-    with patch("app.services.auth_service.db", return_value=mock_db):
-        with pytest.raises(ValueError, match="Email already registered"):
-            await auth_service.register(data)
+    with (
+        patch("app.services.auth_service.db", return_value=mock_db),
+        pytest.raises(ValueError, match="Email already registered"),
+    ):
+        await auth_service.register(data)
 
 
 @pytest.mark.asyncio
 async def test_auth_service_login_success():
-    from app.services import auth_service
     from app.core.security import hash_password
+    from app.services import auth_service
     user_doc = {
         "_id": "user-1", "email": "doc@example.com",
         "hashed_password": hash_password("correct"), "role": "doctor",
@@ -968,9 +969,11 @@ async def test_auth_service_login_invalid():
     mock_col.find_one = AsyncMock(return_value=None)
     mock_db = MagicMock()
     mock_db.__getitem__ = MagicMock(return_value=mock_col)
-    with patch("app.services.auth_service.db", return_value=mock_db):
-        with pytest.raises(ValueError, match="Invalid credentials"):
-            await auth_service.login("bad@example.com", "wrong", _settings)
+    with (
+        patch("app.services.auth_service.db", return_value=mock_db),
+        pytest.raises(ValueError, match="Invalid credentials"),
+    ):
+        await auth_service.login("bad@example.com", "wrong", _settings)
 
 
 @pytest.mark.asyncio
@@ -993,17 +996,19 @@ async def test_auth_service_verify_mfa_no_secret():
     mock_col.find_one = AsyncMock(return_value={"_id": "user-1", "mfa_secret": None})
     mock_db = MagicMock()
     mock_db.__getitem__ = MagicMock(return_value=mock_col)
-    with patch("app.services.auth_service.db", return_value=mock_db):
-        with pytest.raises(ValueError, match="MFA not configured"):
-            await auth_service.verify_mfa("user-1", "123456")
+    with (
+        patch("app.services.auth_service.db", return_value=mock_db),
+        pytest.raises(ValueError, match="MFA not configured"),
+    ):
+        await auth_service.verify_mfa("user-1", "123456")
 
 
 # ── ai_service ────────────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
 async def test_ai_service_query():
-    from app.services import ai_service
     from app.models.schemas import AIQueryRequest
+    from app.services import ai_service
     raw = {"answer": "Malaria is...", "confidence": 0.9, "sources": []}
     with patch("app.services.ai_service._call_inference", new_callable=AsyncMock, return_value=raw):
         req = AIQueryRequest(question="What is malaria?", context={"locale": "fr"})
@@ -1014,8 +1019,8 @@ async def test_ai_service_query():
 
 @pytest.mark.asyncio
 async def test_ai_service_differential():
-    from app.services import ai_service
     from app.models.schemas import AIDifferentialRequest
+    from app.services import ai_service
     raw = {"answer": "Differential: dengue", "confidence": 0.85, "sources": []}
     with patch("app.services.ai_service._call_inference", new_callable=AsyncMock, return_value=raw):
         req = AIDifferentialRequest(symptoms=["fever", "headache"], locale="fr")
@@ -1025,8 +1030,8 @@ async def test_ai_service_differential():
 
 @pytest.mark.asyncio
 async def test_ai_service_literature():
-    from app.services import ai_service
     from app.models.schemas import AILiteratureRequest
+    from app.services import ai_service
     raw = {"answer": "Literature on malaria...", "confidence": 0.8, "sources": ["pub1"]}
     with patch("app.services.ai_service._call_inference", new_callable=AsyncMock, return_value=raw):
         req = AILiteratureRequest(topic="malaria treatment", locale="fr")
@@ -1036,8 +1041,8 @@ async def test_ai_service_literature():
 
 @pytest.mark.asyncio
 async def test_ai_service_translate():
-    from app.services import ai_service
     from app.models.schemas import AITranslateRequest
+    from app.services import ai_service
     raw = {"answer": "Bonjour monde", "confidence": 0.99, "sources": []}
     with patch("app.services.ai_service._call_inference", new_callable=AsyncMock, return_value=raw):
         req = AITranslateRequest(text="Hello world", target_locale="fr")
@@ -1047,8 +1052,8 @@ async def test_ai_service_translate():
 
 @pytest.mark.asyncio
 async def test_ai_service_low_confidence_disclaimer():
-    from app.services import ai_service
     from app.models.schemas import AIQueryRequest
+    from app.services import ai_service
     raw = {"answer": "Uncertain answer", "confidence": 0.4, "sources": []}
     with patch("app.services.ai_service._call_inference", new_callable=AsyncMock, return_value=raw):
         req = AIQueryRequest(question="What is X?", context={"locale": "en"})

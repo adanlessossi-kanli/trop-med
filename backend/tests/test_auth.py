@@ -148,7 +148,7 @@ async def test_refresh_expired_or_invalid_token(client):
 
 @pytest.mark.asyncio
 async def test_logout(client, doctor_token):
-    with patch("app.core.audit.log_audit", new_callable=AsyncMock):
+    with patch("app.api.routes.auth.log_audit", new_callable=AsyncMock):
         resp = await client.post(
             "/api/v1/auth/logout",
             headers={"Authorization": f"Bearer {doctor_token}"},
