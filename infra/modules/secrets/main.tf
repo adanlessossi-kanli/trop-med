@@ -10,6 +10,6 @@ resource "aws_secretsmanager_secret" "jwt_secret" {
 }
 
 resource "aws_secretsmanager_secret_rotation" "jwt" {
-  secret_id           = aws_secretsmanager_secret.jwt_secret.id
+  secret_id = aws_secretsmanager_secret.jwt_secret.id
   rotation_rules { automatically_after_days = 30 }
 }

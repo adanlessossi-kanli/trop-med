@@ -7,13 +7,30 @@ variable "instance_type" { default = "g5.2xlarge" }
 data "aws_ami" "deep_learning" {
   most_recent = true
   owners      = ["amazon"]
-  filter { name = "name"; values = ["Deep Learning AMI GPU PyTorch *-Ubuntu-*"] }
+
+  filter {
+    name   = "name"
+    values = ["Deep Learning AMI GPU PyTorch *-Ubuntu-*"]
+  }
 }
 
 resource "aws_security_group" "gpu" {
   vpc_id = var.vpc_id
-  ingress { from_port = 8080; to_port = 8080; protocol = "tcp"; cidr_blocks = ["10.0.0.0/16"] }
-  egress  { from_port = 0; to_port = 0; protocol = "-1"; cidr_blocks = ["0.0.0.0/0"] }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = { Name = "${var.project}-${var.env}-gpu" }
 }
 
@@ -23,7 +40,11 @@ resource "aws_instance" "gpu" {
   subnet_id              = var.private_subnets[0]
   vpc_security_group_ids = [aws_security_group.gpu.id]
 
-  root_block_device { volume_size = 100; volume_type = "gp3"; encrypted = true }
+  root_block_device {
+    volume_size = 100
+    volume_type = "gp3"
+    encrypted   = true
+  }
 
   tags = { Name = "${var.project}-${var.env}-gpu-inference" }
 }
