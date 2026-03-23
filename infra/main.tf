@@ -18,17 +18,17 @@ module "vpc" {
 }
 
 module "ecs" {
-  source            = "./modules/ecs"
-  project           = var.project
-  env               = var.env
-  vpc_id            = module.vpc.vpc_id
-  private_subnets   = module.vpc.private_subnets
-  public_subnets    = module.vpc.public_subnets
-  backend_image     = var.backend_image
-  cpu               = 2048
-  memory            = 4096
-  desired_count     = 2
-  max_count         = 10
+  source          = "./modules/ecs"
+  project         = var.project
+  env             = var.env
+  vpc_id          = module.vpc.vpc_id
+  private_subnets = module.vpc.private_subnets
+  public_subnets  = module.vpc.public_subnets
+  backend_image   = var.backend_image
+  cpu             = 2048
+  memory          = 4096
+  desired_count   = 2
+  max_count       = 10
 }
 
 module "ec2_gpu" {

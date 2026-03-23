@@ -16,11 +16,25 @@ resource "aws_cloudfront_distribution" "main" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "s3-frontend"
     viewer_protocol_policy = "redirect-to-https"
-    forwarded_values { query_string = false; cookies { forward = "none" } }
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
   }
 
-  restrictions { geo_restriction { restriction_type = "none" } }
-  viewer_certificate { cloudfront_default_certificate = true }
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
 }
 
 output "domain_name" { value = aws_cloudfront_distribution.main.domain_name }

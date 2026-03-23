@@ -18,7 +18,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   statistic           = "Average"
   threshold           = 80
   alarm_actions       = [var.sns_topic]
-  dimensions = { ClusterName = var.ecs_cluster }
+  dimensions          = { ClusterName = var.ecs_cluster }
 }
 
 resource "aws_cloudwatch_metric_alarm" "error_rate" {
