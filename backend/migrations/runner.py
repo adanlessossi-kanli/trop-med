@@ -8,7 +8,7 @@ import importlib
 import logging
 import pkgutil
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -37,7 +37,7 @@ async def run_migrations(db: AsyncIOMotorDatabase) -> None:
 
     # Discover migration modules (files named like 0001_*.py)
     modules = []
-    for finder, name, _ in pkgutil.iter_modules(migrations_pkg.__path__):
+    for _finder, name, _ in pkgutil.iter_modules(migrations_pkg.__path__):
         if name == "runner":
             continue
         mod = importlib.import_module(f"{pkg_name}.{name}")
@@ -58,7 +58,7 @@ async def run_migrations(db: AsyncIOMotorDatabase) -> None:
                 {
                     "version": mod.VERSION,
                     "name": mod.NAME,
-                    "applied_at": datetime.now(timezone.utc),
+                    "applied_at": datetime.now(UTC),
                 }
             )
             logger.info("Migration %04d applied successfully.", mod.VERSION)
