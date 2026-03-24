@@ -24,32 +24,18 @@ Trop-Med est destinée aux professionnels de santé et aux patients dans des env
 
 ```mermaid
 graph TD
-    Browser["Browser\n(Next.js 16 / React 19)"]
-    Mobile["React Native\n(Mobile)"]
-    Middleware["Next.js Middleware\n(route protection)"]
-    AuthHook["useAuth Hook\n(token state)"]
-    APIClient["API Client\n(lib/api.ts)"]
-    Backend["FastAPI Backend\n(ECS Fargate :8000)"]
+    Clients["Clients\nWeb / Mobile"]
+    Backend["FastAPI Backend :8000"]
     MongoDB["MongoDB Atlas"]
-    Redis["ElastiCache Redis"]
-    S3["S3 (Fichiers)"]
-    AI["Inférence IA\n(EC2 GPU — Qwen3-14B)"]
-    SQS["SQS / SNS"]
-    MigRunner["Migration Runner\n(backend/migrations/)"]
+    Redis["Redis"]
+    S3["S3"]
+    AI["IA GPU\nQwen3-14B"]
 
-    Browser --> Middleware
-    Mobile --> APIClient
-    Middleware --> AuthHook
-    AuthHook --> APIClient
-    APIClient -->|"HTTP + Bearer token"| Backend
-    APIClient -->|"WebSocket /ws/chat"| Backend
+    Clients -->|"JWT + REST / WebSocket"| Backend
     Backend --> MongoDB
     Backend --> Redis
     Backend --> S3
     Backend --> AI
-    Backend --> SQS
-    MigRunner --> MongoDB
-    Backend -->|"lifespan startup"| MigRunner
 ```
 
 Voir [`docs/architecture.md`](docs/architecture.md) pour les diagrammes de séquence et de composants détaillés.

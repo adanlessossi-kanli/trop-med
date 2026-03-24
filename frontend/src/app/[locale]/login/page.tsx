@@ -100,6 +100,7 @@ export default function LoginPage() {
           src="https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=1200&q=80"
           alt="Tropical medicine clinic — healthcare professionals at work"
           fill
+          sizes="50vw"
           className="object-cover opacity-30"
           priority
         />

@@ -113,9 +113,9 @@ export default function PatientsPage() {
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
                   <>
-                    <PatientRowSkeleton />
-                    <PatientRowSkeleton />
-                    <PatientRowSkeleton />
+                    <PatientRowSkeleton key="skel-0" />
+                    <PatientRowSkeleton key="skel-1" />
+                    <PatientRowSkeleton key="skel-2" />
                   </>
                 ) : patients.length === 0 ? (
                   <tr>
@@ -124,10 +124,10 @@ export default function PatientsPage() {
                     </td>
                   </tr>
                 ) : (
-                  patients.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 text-slate-700">{p.full_name.split(" ")[0]}</td>
-                      <td className="px-4 py-3 text-slate-700">{p.full_name.split(" ").slice(1).join(" ")}</td>
+                  patients.map((p, i) => (
+                    <tr key={p.id ?? i} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3 text-slate-700">{p.full_name?.split(" ")[0] ?? "—"}</td>
+                      <td className="px-4 py-3 text-slate-700">{p.full_name?.split(" ").slice(1).join(" ") ?? ""}</td>
                       <td className="px-4 py-3 text-slate-500">{p.date_of_birth ?? "—"}</td>
                       <td className="px-4 py-3 text-slate-500">{p.gender ?? "—"}</td>
                     </tr>

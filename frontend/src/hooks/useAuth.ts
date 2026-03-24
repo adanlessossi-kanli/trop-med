@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
 export type Role = "admin" | "doctor" | "nurse" | "researcher" | "patient";
@@ -62,15 +62,18 @@ function clearTokenCookie(): void {
 }
 
 export function useAuth(): AuthContextValue {
-  const [token, setToken] = useState<string | null>(() =>
-    typeof window !== "undefined" ? localStorage.getItem("token") : null
-  );
-  const [refreshToken, setRefreshToken] = useState<string | null>(() =>
-    typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null
-  );
-  const [user, setUser] = useState<User | null>(() =>
-    typeof window !== "undefined" ? parseToken(localStorage.getItem("token")) : null
-  );
+  const [token, setToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  // Hydrate from localStorage after mount to avoid SSR/client mismatch
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedRefresh = localStorage.getItem("refresh_token");
+    setToken(storedToken);
+    setRefreshToken(storedRefresh);
+    setUser(parseToken(storedToken));
+  }, []);
 
   // In-flight refresh promise — shared so concurrent callers don't trigger multiple refreshes.
   const refreshPromiseRef = useRef<Promise<void> | null>(null);
